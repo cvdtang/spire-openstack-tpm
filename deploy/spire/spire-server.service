@@ -1,0 +1,16 @@
+[Unit]
+Description=SPIRE Server (openstack_tpm)
+After=network-online.target
+Wants=network-online.target
+[Service]
+# Runs as the system user spire, which must read the configuration, server.env and /etc/spire/openstack-tpm (root:spire 0640).
+User=spire
+Group=spire
+EnvironmentFile=/etc/spire/server.env
+ExecStart=/opt/spire/bin/spire-server run -config /etc/spire/server.conf -expandEnv
+RuntimeDirectory=spire-server
+StateDirectory=spire/server
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+- name: Directories
+  ansible.windows.win_file:
+    path: "{{ item }}"
+    state: directory
+  loop: ['C:\Program Files\spire', 'C:\ProgramData\spire']
+
+- name: Agent and plugin
+  ansible.windows.win_copy:
+    src: "{{ spire_agent_files }}/{{ item }}"
+    dest: 'C:\Program Files\spire\{{ item }}'
+  loop: [spire-agent.exe, openstack-tpm-spire-agent.exe]
+  notify: Restart spire-agent
+
+- name: Trust bundle
+  ansible.windows.win_copy:
+    content: "{{ spire_agent_bundle }}"
+    dest: 'C:\ProgramData\spire\bundle.pem'
+  notify: Restart spire-agent
+
+- name: Configuration
+  ansible.windows.win_template:
+    src: agent-windows.conf.j2
+    dest: 'C:\ProgramData\spire\agent.conf'
+  notify: Restart spire-agent
+
+- name: Service
+  ansible.windows.win_service:
+    name: spire-agent
+    display_name: SPIRE Agent (openstack_tpm)
+    path: '"C:\Program Files\spire\spire-agent.exe" run -config "C:\ProgramData\spire\agent.conf"'
+    start_mode: auto
+    state: started
+    failure_actions:
+      - {type: restart, delay_ms: 5000}
+    failure_reset_period_sec: 86400
+    failure_actions_on_non_crash_failure: true

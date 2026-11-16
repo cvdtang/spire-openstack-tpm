@@ -1,0 +1,16 @@
+version: 2
+ethernets:
+  eth0:
+    match: {macaddress: "52:54:00:96:00:${OCTET}"}
+    set-name: eth0
+    addresses: [192.168.150.${OCTET}/24]
+    routes: [{to: default, via: 192.168.150.1}]
+    nameservers: {addresses: [1.1.1.1, 8.8.8.8]}
+  # br-ex's port, up without addresses.
+  eth1:
+    match: {macaddress: "52:54:00:96:01:${OCTET}"}
+    set-name: eth1
+    dhcp4: false
+    dhcp6: false
+    accept-ra: false
+    link-local: []

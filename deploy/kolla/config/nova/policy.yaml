@@ -1,0 +1,6 @@
+# The issuer's role openstack_tpm_issuer may read a server with its host and flavor extra specs, and list its actions.
+# Nova's database layer still limits the role to the token's project.
+"os_compute_api:servers:show": "rule:project_reader_or_admin or (role:openstack_tpm_issuer and project_id:%(project_id)s)"
+"os_compute_api:os-extended-server-attributes": "rule:context_is_admin or (role:openstack_tpm_issuer and project_id:%(project_id)s)"
+"os_compute_api:os-flavor-extra-specs:index": "rule:project_reader_or_admin or (role:openstack_tpm_issuer and project_id:%(project_id)s)"
+"os_compute_api:os-instance-actions:list": "rule:project_reader_or_admin or (role:openstack_tpm_issuer and project_id:%(project_id)s)"

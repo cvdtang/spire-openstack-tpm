@@ -1,0 +1,7 @@
+version: "2"
+run:
+  build-tags: [e2e]
+linters:
+  exclusions:
+    # Unchecked Close, Flush, os.Remove and print calls are fine; every other error is handled or discarded with _.
+    presets: [std-error-handling]

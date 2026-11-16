@@ -1,0 +1,4 @@
+# The issuer's role openstack_tpm_issuer may read a node and its inspection data, which holds the EK's hash.
+# Each rule is Ironic's 2026.2 default with the role added.
+"baremetal:node:get": "((role:reader and system_scope:all) or (role:service and system_scope:all) or rule:service_role) or (role:reader and (project_id:%(node.owner)s or project_id:%(node.lessee)s)) or (role:service and project_id:%(node.owner)s) or role:openstack_tpm_issuer"
+"baremetal:node:inventory:get": "((role:reader and system_scope:all) or (role:service and system_scope:all) or rule:service_role) or (role:service and system_scope:all) or (role:reader and project_id:%(node.owner)s) or (role:service and project_id:%(node.owner)s) or role:openstack_tpm_issuer"

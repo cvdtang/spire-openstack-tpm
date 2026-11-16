@@ -1,0 +1,14 @@
+# Nix
+.direnv/
+
+# Go caches + build output
+.go/
+/bin/
+
+# Lab
+.state/
+/vm/
+*.img
+*.iso
+*.qcow2
+*.qcow2.*

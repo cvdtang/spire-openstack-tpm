@@ -1,0 +1,66 @@
+- name: tpm-udev
+  ansible.builtin.apt:
+    name: tpm-udev
+    update_cache: true
+    lock_timeout: 600
+  register: tpm_udev
+  retries: 5
+  delay: 10
+  until: tpm_udev is succeeded
+
+- name: Apply tpm-udev's rules to the TPM that is already there
+  ansible.builtin.shell: udevadm control --reload && udevadm trigger --subsystem-match=tpmrm --action=add && udevadm settle
+  when: tpm_udev is changed
+
+- name: System user spire in the group tss
+  ansible.builtin.user:
+    name: spire
+    system: true
+    home: /var/lib/spire
+    create_home: false
+    shell: /usr/sbin/nologin
+    groups: tss
+    append: true
+
+- name: Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: [/opt/spire, /etc/spire]
+
+- name: Agent and plugin
+  ansible.builtin.copy:
+    src: "{{ spire_agent_files }}/{{ item }}"
+    dest: /opt/spire/{{ item }}
+    mode: "0755"
+  loop: [spire-agent, openstack-tpm-spire-agent]
+  notify: Restart spire-agent
+
+- name: Trust bundle
+  ansible.builtin.copy:
+    content: "{{ spire_agent_bundle }}"
+    dest: /etc/spire/bundle.pem
+    mode: "0644"
+  notify: Restart spire-agent
+
+- name: Configuration
+  ansible.builtin.template:
+    src: agent-linux.conf.j2
+    dest: /etc/spire/agent.conf
+    mode: "0644"
+  notify: Restart spire-agent
+
+- name: Unit
+  ansible.builtin.copy:
+    src: spire-agent.service
+    dest: /etc/systemd/system/spire-agent.service
+    mode: "0644"
+  notify: Restart spire-agent
+
+- name: Service
+  ansible.builtin.systemd_service:
+    name: spire-agent
+    enabled: true
+    state: started
+    daemon_reload: true

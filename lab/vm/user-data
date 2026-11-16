@@ -1,0 +1,18 @@
+#cloud-config
+# /etc/hosts without 127.0.1.1 for the hostname (RabbitMQ), Kolla's Python modules, and a placeholder for nova_libvirt's bind mount.
+hostname: compute-1
+manage_etc_hosts: false
+disable_root: false
+ssh_pwauth: false
+ssh_authorized_keys: ["${PUBKEY}"]
+package_update: true
+packages: [python3-docker, python3-dbus]
+write_files:
+  - path: /etc/hosts
+    content: |
+      127.0.0.1 localhost
+      192.168.150.11 compute-1
+  - path: /etc/openstack-tpm/hv/swtpm_setup.conf
+    content: |
+      # Placeholder until the hypervisor hook is installed.
+      active_pcr_banks = sha256

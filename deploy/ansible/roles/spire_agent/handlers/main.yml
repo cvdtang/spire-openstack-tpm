@@ -1,0 +1,13 @@
+- name: Restart spire-agent
+  ansible.builtin.systemd_service:
+    name: spire-agent
+    state: restarted
+    daemon_reload: true
+  when: ansible_os_family != 'Windows'
+
+- name: Restart spire-agent on Windows
+  ansible.windows.win_service:
+    name: spire-agent
+    state: restarted
+  when: ansible_os_family == 'Windows'
+  listen: Restart spire-agent

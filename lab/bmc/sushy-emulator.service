@@ -1,0 +1,10 @@
+[Unit]
+Description=sushy-tools Redfish emulator (BMC of bm-1)
+After=libvirtd.service network-online.target
+Wants=network-online.target
+[Service]
+ExecStart=/opt/sushy/bin/sushy-emulator --config /etc/sushy/sushy.conf
+Restart=always
+RestartSec=3
+[Install]
+WantedBy=multi-user.target

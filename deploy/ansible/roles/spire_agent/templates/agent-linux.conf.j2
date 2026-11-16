@@ -1,0 +1,22 @@
+agent {
+    data_dir = "/var/lib/spire/agent"
+    log_level = "{{ spire_agent_log_level }}"
+    server_address = "{{ spire_agent_server_address }}"
+    server_port = "{{ spire_agent_server_port }}"
+    socket_path = "/run/spire/agent/public/api.sock"
+    trust_domain = "{{ spire_agent_trust_domain }}"
+    trust_bundle_path = "/etc/spire/bundle.pem"
+}
+plugins {
+    NodeAttestor "openstack_tpm" {
+        plugin_cmd = "/opt/spire/openstack-tpm-spire-agent"
+        plugin_checksum = "{{ spire_agent_plugin_checksum }}"
+        plugin_data {}
+    }
+    KeyManager "memory" {
+        plugin_data {}
+    }
+    WorkloadAttestor "unix" {
+        plugin_data {}
+    }
+}

@@ -1,0 +1,20 @@
+- name: SPIRE agent in a lab instance
+  hosts: all
+  vars:
+    spire_agent_log_level: DEBUG
+    spire_agent_files: "{{ playbook_dir }}/../.state/agent/{{ 'windows' if ansible_os_family == 'Windows' else 'linux' }}"
+  pre_tasks:
+    - name: Wait for cloud-init, which also runs apt
+      ansible.builtin.command: cloud-init status --wait
+      register: cloud_init
+      changed_when: false
+      failed_when: cloud_init.rc not in [0, 2]
+      when: ansible_os_family != 'Windows'
+    - name: tpm2-tools, which the e2e tests use
+      ansible.builtin.apt:
+        name: tpm2-tools
+        update_cache: true
+        lock_timeout: 600
+      when: ansible_os_family != 'Windows'
+  roles:
+    - role: ../deploy/ansible/roles/spire_agent

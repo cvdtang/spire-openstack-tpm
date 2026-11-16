@@ -1,0 +1,10 @@
+Host compute-1
+    HostName 192.168.150.11
+Host bmc
+    HostName 192.168.150.13
+Host *
+    User root
+    IdentityFile ${PWD}/.state/lab_ed25519
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR

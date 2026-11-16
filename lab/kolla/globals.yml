@@ -1,0 +1,22 @@
+# Kolla-Ansible globals for the lab; the openstack-tpm settings come from globals.d.
+kolla_base_distro: ubuntu
+# No HAProxy/keepalived: one controller, the "VIP" is compute-1's own address.
+kolla_internal_vip_address: 192.168.150.11
+enable_haproxy: "no"
+# Without a VIP ProxySQL would share MariaDB's address:3306 and win the race after a reboot.
+enable_proxysql: "no"
+network_interface: eth0
+neutron_external_interface: eth1
+neutron_plugin_agent: openvswitch
+nova_compute_virt_type: kvm
+enable_heat: "no"
+enable_horizon: "no"
+# Upstream test images from quay.io/openstack.kolla.
+kolla_test_images: "yes"
+enable_ironic: "yes"
+# networking-baremetal binds the node's port on the flat provider network.
+enable_ironic_neutron_agent: "yes"
+# Neutron serves DHCP to the node and the provisioning enrols it, so Ironic doesn't need its own.
+enable_ironic_dnsmasq: "no"
+# The node's only NIC is on public1, which is also its instances' network.
+ironic_cleaning_network: "public1"

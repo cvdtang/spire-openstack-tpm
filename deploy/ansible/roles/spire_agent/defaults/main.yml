@@ -1,0 +1,6 @@
+spire_agent_server_address: ""
+spire_agent_server_port: 8081
+spire_agent_trust_domain: ""
+spire_agent_bundle: ""
+spire_agent_log_level: INFO
+spire_agent_files: ""

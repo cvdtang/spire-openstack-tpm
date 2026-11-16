@@ -1,0 +1,7 @@
+<!-- One NAT network for management (eth0) and the provider network public1 (eth1); Neutron, not libvirt, serves DHCP. -->
+<network>
+  <name>otpm-mgmt</name>
+  <forward mode="nat"/>
+  <bridge name="virbr-otpm0"/>
+  <ip address="192.168.150.1" netmask="255.255.255.0"/>
+</network>

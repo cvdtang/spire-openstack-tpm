@@ -1,0 +1,60 @@
+# The lab's provider side and SPIRE servers on this host.
+# Containers run as the invoking user to read .state/ and bin/.
+x-spire-server: &spire-server
+  image: ${SPIRE_SERVER_IMAGE:?}
+  user: "${LAB_UID}:${LAB_GID}"
+  network_mode: host
+  # The image's entrypoint is `spire-server run`.
+  command: ["-config", "/etc/spire/server.conf", "-expandEnv"]
+  # State lives in the container: every deploy starts a new CA and datastore.
+  tmpfs:
+    - /var/lib/spire/server:mode=1777
+    - /run/spire-server:mode=1777
+  restart: unless-stopped
+
+services:
+  # OpenBao in dev mode is in memory and unsealed, so every start is empty until the deploy configures it.
+  openbao:
+    image: ${OPENBAO_IMAGE:?}
+    container_name: openbao
+    network_mode: host
+    cap_add: [IPC_LOCK]
+    environment:
+      BAO_DEV_ROOT_TOKEN_ID: lab-root
+      BAO_DEV_LISTEN_ADDRESS: 127.0.0.1:8200
+    restart: unless-stopped
+
+  # The issuer, called by the hypervisor hook with compute-1's certificate and by IPA without one.
+  issuer:
+    image: ${ISSUER_IMAGE:?}
+    container_name: issuer
+    user: "${LAB_UID}:${LAB_GID}"
+    network_mode: host
+    env_file: [{path: .state/issuer/issuer.env, required: false}]
+    environment:
+      ISSUER_LISTEN: ":9443"
+      ISSUER_HEALTH_LISTEN: "127.0.0.1:8098"
+    volumes:
+      - ./.state/issuer/etc:/etc/issuer:ro
+    depends_on: [openbao]
+    restart: unless-stopped
+
+  # The tenant's SPIRE server for tenant-a, with Nova and Keystone selectors through the tenant's application credential.
+  spire-server:
+    <<: *spire-server
+    container_name: spire-server
+    env_file: [{path: .state/spire/tenant.env, required: false}]
+    volumes:
+      - ./deploy/spire/server.conf:/etc/spire/server.conf:ro
+      - ./.state/spire/tenant:/etc/spire/openstack-tpm:ro
+      - ./bin/openstack-tpm-spire-server:/opt/openstack-tpm/openstack-tpm-spire-server:ro
+
+  # A central SPIRE server for every project of the Default domain, with certificate selectors only.
+  spire-server-central:
+    <<: *spire-server
+    container_name: spire-server-central
+    env_file: [{path: .state/spire/central.env, required: false}]
+    volumes:
+      - ./deploy/spire/server-central.conf:/etc/spire/server.conf:ro
+      - ./.state/spire/central:/etc/spire/openstack-tpm:ro
+      - ./bin/openstack-tpm-spire-server:/opt/openstack-tpm/openstack-tpm-spire-server:ro

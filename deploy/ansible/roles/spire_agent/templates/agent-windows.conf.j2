@@ -1,0 +1,21 @@
+agent {
+    data_dir = "C:/ProgramData/spire/agent"
+    log_level = "{{ spire_agent_log_level }}"
+    server_address = "{{ spire_agent_server_address }}"
+    server_port = "{{ spire_agent_server_port }}"
+    trust_domain = "{{ spire_agent_trust_domain }}"
+    trust_bundle_path = "C:/ProgramData/spire/bundle.pem"
+}
+plugins {
+    NodeAttestor "openstack_tpm" {
+        plugin_cmd = "C:/Program Files/spire/openstack-tpm-spire-agent.exe"
+        plugin_checksum = "{{ spire_agent_plugin_checksum }}"
+        plugin_data {}
+    }
+    KeyManager "memory" {
+        plugin_data {}
+    }
+    WorkloadAttestor "windows" {
+        plugin_data {}
+    }
+}

@@ -1,0 +1,6 @@
+# Nova keeps vTPM secrets in Barbican.
+enable_barbican: "yes"
+# The hypervisor hook in nova_libvirt; the files must exist before Kolla creates the container.
+nova_libvirt_extra_volumes:
+  - "/etc/openstack-tpm/hv:/etc/openstack-tpm:ro"
+  - "/etc/openstack-tpm/hv/swtpm_setup.conf:/etc/swtpm_setup.conf:ro"

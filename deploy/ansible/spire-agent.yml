@@ -1,0 +1,4 @@
+- name: SPIRE agent with the openstack_tpm node attestor
+  hosts: all
+  roles:
+    - spire_agent
